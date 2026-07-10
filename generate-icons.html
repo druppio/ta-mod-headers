@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Header Editor — Icon Generator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f3f4f6;
+      padding: 32px;
+      color: #111;
+    }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    p  { color: #555; font-size: 13px; margin-bottom: 28px; }
+    h2 { font-size: 14px; font-weight: 700; text-transform: uppercase;
+         letter-spacing: 0.5px; color: #444; margin-bottom: 12px; }
+    .group { display: flex; gap: 28px; align-items: flex-end; margin-bottom: 32px; }
+    .preview-box { text-align: center; }
+    .checker {
+      display: inline-block;
+      background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 10px 10px;
+      background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+      padding: 6px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    canvas { display: block; image-rendering: pixelated; }
+    .label { font-size: 12px; color: #666; margin-bottom: 6px; }
+    button {
+      font-size: 12px;
+      padding: 4px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    button:hover { background: #f9fafb; }
+    #downloadAll {
+      margin-top: 8px;
+      font-size: 14px;
+      padding: 8px 22px;
+      background: #000579;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #downloadAll:hover { background: #0007a0; }
+    .instructions {
+      margin-top: 32px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 18px 22px;
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 520px;
+    }
+    .instructions code {
+      background: #f3f4f6;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Header Editor — Icon Generator</h1>
+  <p>TrustArc brand palette · <strong style="color:#000579">#000579</strong> navy · <strong style="color:#3699F1">#3699F1</strong> blue</p>
+
+  <h2>Active (profile enabled)</h2>
+  <div class="group" id="activeGroup"></div>
+
+  <h2>Inactive (all profiles off)</h2>
+  <div class="group" id="inactiveGroup"></div>
+
+  <button id="downloadAll">⬇ Download all 6 icons</button>
+
+  <div class="instructions">
+    <strong>After downloading:</strong><br>
+    1. Move all 6 files into <code>header-editor/icons/</code><br>
+    2. Reload the unpacked extension at <code>chrome://extensions</code><br>
+    3. The icon will switch automatically when profiles are toggled.
+  </div>
+
+  <script>
+    // ── Brand colours ──────────────────────────────────────────────
+    const NAVY   = '#000579';
+    const BLUE   = '#3699F1';
+    const WHITE  = '#ffffff';
+
+    // Inactive palette (greyscale to signal "off")
+    const I_BG   = '#4b5563';
+    const I_ARC  = '#9ca3af';
+    const I_BAR  = '#d1d5db';
+
+    // ── Canvas helper ──────────────────────────────────────────────
+    function rrect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y,     x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x,     y + h, r);
+      ctx.arcTo(x,     y + h, x,     y,     r);
+      ctx.arcTo(x,     y,     x + w, y,     r);
+      ctx.closePath();
+    }
+
+    // ── Icon drawing ───────────────────────────────────────────────
+    function drawIcon(canvas, size, active) {
+      const ctx = canvas.getContext('2d');
+      canvas.width  = size;
+      canvas.height = size;
+      ctx.clearRect(0, 0, size, size);
+
+      const radius = Math.round(size * 0.2);
+
+      // Background
+      rrect(ctx, 0, 0, size, size, radius);
+      ctx.fillStyle = active ? NAVY : I_BG;
+      ctx.fill();
+
+      // ── TrustArc-inspired swoosh (sizes ≥ 48) ──
+      // Quadratic bezier from left edge to right, arching upward
+      if (size >= 48) {
+        const sx   = size * 0.13;
+        const ex   = size * 0.87;
+        const midY = size * 0.36;
+        const cpY  = size * 0.04;   // control point above top → deep upward curve
+
+        ctx.beginPath();
+        ctx.moveTo(sx, midY);
+        ctx.quadraticCurveTo(size * 0.5, cpY, ex, midY);
+        ctx.strokeStyle  = active ? BLUE : I_ARC;
+        ctx.lineWidth    = size * 0.095;
+        ctx.lineCap      = 'round';
+        ctx.lineJoin     = 'round';
+        ctx.stroke();
+      }
+
+      // ── Header bars ───────────────────────────────────────────────
+      const padX   = size * 0.17;
+      const barH   = Math.max(1.5, size * 0.075);
+      const bars   = size <= 16 ? 3 : 3;
+      const startY = size >= 48 ? size * 0.49 : size * 0.22;
+      const endY   = size * 0.84;
+      const slot   = (endY - startY) / bars;
+
+      for (let i = 0; i < bars; i++) {
+        const y = startY + i * slot + (slot - barH) / 2;
+
+        // First bar is shorter (like a heading vs body rows)
+        const w = i === 0
+          ? (size - padX * 2) * 0.58
+          : size - padX * 2;
+
+        ctx.beginPath();
+        rrect(ctx, padX, y, w, barH, barH / 2);
+
+        if (active) {
+          ctx.fillStyle = i === 0 ? BLUE : WHITE;
+        } else {
+          ctx.fillStyle = I_BAR;
+        }
+        ctx.fill();
+      }
+    }
+
+    // ── Render & wire up downloads ────────────────────────────────
+    const SIZES = [16, 48, 128];
+    const canvases = {};   // key: "active-48", etc.
+
+    function buildGroup(groupId, active) {
+      const group = document.getElementById(groupId);
+      const stateKey = active ? 'active' : 'inactive';
+
+      SIZES.forEach(size => {
+        const key = `${stateKey}-${size}`;
+        const canvas = document.createElement('canvas');
+        drawIcon(canvas, size, active);
+        canvases[key] = canvas;
+
+        const scale = size < 48 ? 5 : size < 128 ? 2.5 : 1;
+        canvas.style.width  = (size * scale) + 'px';
+        canvas.style.height = (size * scale) + 'px';
+
+        const filename = active
+          ? `icon${size}.png`
+          : `icon${size}_inactive.png`;
+
+        const checker = document.createElement('div');
+        checker.className = 'checker';
+        checker.appendChild(canvas);
+
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = `${size}×${size}`;
+
+        const btn = document.createElement('button');
+        btn.textContent = '⬇ ' + filename;
+        btn.onclick = () => downloadCanvas(canvas, filename);
+
+        const box = document.createElement('div');
+        box.className = 'preview-box';
+        box.append(checker, label, btn);
+        group.appendChild(box);
+      });
+    }
+
+    buildGroup('activeGroup',   true);
+    buildGroup('inactiveGroup', false);
+
+    function downloadCanvas(canvas, filename) {
+      const a = document.createElement('a');
+      a.href     = canvas.toDataURL('image/png');
+      a.download = filename;
+      a.click();
+    }
+
+    document.getElementById('downloadAll').addEventListener('click', () => {
+      document.querySelectorAll('.preview-box button').forEach((btn, i) => {
+        setTimeout(() => btn.click(), i * 120);
+      });
+    });
+  </script>
+</body>
+</html>

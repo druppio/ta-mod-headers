@@ -57,6 +57,17 @@ async function applyRules() {
       }
     }
   }
+
+  // Reflect active/inactive state in the toolbar icon
+  const isActive = newRules.length > 0;
+  const suffix   = isActive ? '' : '_inactive';
+  chrome.action.setIcon({
+    path: {
+      16:  `icons/icon16${suffix}.png`,
+      48:  `icons/icon48${suffix}.png`,
+      128: `icons/icon128${suffix}.png`
+    }
+  });
 }
 
 function makeId() {
