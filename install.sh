@@ -80,9 +80,9 @@ success "Found: $CHROME_BIN"
 
 # ── Install directory ─────────────────────────────────────────────────────────
 if [[ "$PLATFORM" == "macOS" ]]; then
-  INSTALL_DIR="$HOME/Library/Application Support/SimpleHeaderEditor"
+  INSTALL_DIR="$HOME/Documents/SimpleHeaderEditor"
 else
-  INSTALL_DIR="$HOME/.local/share/simple-header-editor"
+  INSTALL_DIR="$HOME/simple-header-editor"
 fi
 
 mkdir -p "$INSTALL_DIR" "$INSTALL_DIR/icons"
