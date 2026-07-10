@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Header Editor",
+  "version": "1.0.0",
+  "description": "Modify HTTP request and response headers for development and testing",
+  "permissions": [
+    "declarativeNetRequest",
+    "storage"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Header Editor"
+  }
+}
