@@ -317,9 +317,23 @@ function showAutocomplete(input) {
   });
 
   const rect = input.getBoundingClientRect();
-  acDropdown.style.top = (rect.bottom + 2) + 'px';
+  const spaceBelow = window.innerHeight - rect.bottom - 6;
+  const spaceAbove = rect.top - 6;
+  const maxAllowed = 500;
+
   acDropdown.style.left = rect.left + 'px';
   acDropdown.style.width = Math.max(rect.width, 220) + 'px';
+
+  if (spaceBelow >= 120 || spaceBelow >= spaceAbove) {
+    acDropdown.style.top = (rect.bottom + 2) + 'px';
+    acDropdown.style.bottom = 'auto';
+    acDropdown.style.maxHeight = Math.min(maxAllowed, spaceBelow) + 'px';
+  } else {
+    acDropdown.style.bottom = (window.innerHeight - rect.top + 2) + 'px';
+    acDropdown.style.top = 'auto';
+    acDropdown.style.maxHeight = Math.min(maxAllowed, spaceAbove) + 'px';
+  }
+
   acDropdown.classList.remove('hidden');
 }
 
