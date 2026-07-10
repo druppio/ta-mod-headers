@@ -57,6 +57,32 @@ echo ""
 # ── Checks ────────────────────────────────────────────────────────────────────
 command -v curl &>/dev/null || error "curl is required but not installed."
 
+# ── Confirmation ──────────────────────────────────────────────────────────────
+if [[ "$PLATFORM" == "macOS" ]]; then
+  PREVIEW_DIR="$HOME/Documents/SimpleHeaderEditor"
+else
+  PREVIEW_DIR="$HOME/simple-header-editor"
+fi
+
+echo -e "${BOLD}  This installer will:${RESET}"
+echo ""
+echo -e "  ${CYAN}1.${RESET} Download the extension files from GitHub"
+echo -e "  ${CYAN}2.${RESET} Copy them to ${BOLD}${PREVIEW_DIR}${RESET}"
+echo -e "  ${CYAN}3.${RESET} Write a Chrome policy to pre-enable Developer mode"
+echo -e "  ${CYAN}4.${RESET} Open Chrome to ${BOLD}chrome://extensions${RESET}"
+echo ""
+echo -e "  You will then need to click ${BOLD}Load unpacked${RESET} and select the folder above."
+echo -e "  ${YELLOW}Nothing is modified outside your home directory.${RESET}"
+echo ""
+
+read -r -p "  Proceed with installation? [y/N] " CONFIRM
+echo ""
+
+case "$CONFIRM" in
+  [yY][eE][sS]|[yY]) ;;
+  *) echo -e "  ${YELLOW}Installation cancelled.${RESET}\n"; exit 0 ;;
+esac
+
 # ── Find Chrome ───────────────────────────────────────────────────────────────
 step "1/4  Locating Chrome"
 
