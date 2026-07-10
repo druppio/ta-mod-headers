@@ -21,6 +21,56 @@ const HEADER_SUGGESTIONS = {
   ]
 };
 
+// ── Theme ─────────────────────────────────────────────────────────────────────
+
+async function initTheme() {
+  const { theme = null } = await chrome.storage.local.get('theme');
+  applyTheme(theme);
+
+  // Keep icon in sync when OS theme changes (only matters in auto mode)
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (!document.documentElement.hasAttribute('data-theme')) updateThemeBtn(null);
+  });
+}
+
+function applyTheme(theme) {
+  if (theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  updateThemeBtn(theme);
+}
+
+function updateThemeBtn(theme) {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  // Cycle order: auto → light → dark → auto
+  if (theme === 'light') {
+    btn.textContent = '☀';
+    btn.title = 'Theme: Light — click for Dark';
+  } else if (theme === 'dark') {
+    btn.textContent = '☾';
+    btn.title = 'Theme: Dark — click for System';
+  } else {
+    btn.textContent = '◑';
+    btn.title = 'Theme: System — click for Light';
+  }
+}
+
+document.getElementById('themeToggle').addEventListener('click', async () => {
+  const current = document.documentElement.getAttribute('data-theme'); // null | 'light' | 'dark'
+  const next = current === null ? 'light' : current === 'light' ? 'dark' : null;
+  if (next === null) {
+    await chrome.storage.local.remove('theme');
+  } else {
+    await chrome.storage.local.set({ theme: next });
+  }
+  applyTheme(next);
+});
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
 let profiles = [];
 let currentProfileIndex = 0;
 let saveTimer = null;
@@ -63,6 +113,7 @@ function escapeAttr(str) {
 }
 
 async function init() {
+  await initTheme();
   const data = await chrome.storage.local.get('profiles');
   profiles = data.profiles || [];
 

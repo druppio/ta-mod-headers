@@ -4,19 +4,84 @@
   padding: 0;
 }
 
+/* ── Theme tokens (ccm-mobile-preview palette) ───────────────────── */
+
+/* Light mode — default */
 :root {
-  --bg: #1a1b2e;
-  --surface: #252640;
-  --surface2: #2e2f4a;
-  --border: #3a3b5c;
-  --text: #e0e0f0;
-  --text-muted: #7a7a9a;
-  --accent: #7c6cfc;
-  --accent-hover: #6a5ae0;
-  --danger: #e06c75;
-  --success: #98c379;
-  --font-mono: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+  --bg:           #ffffff;
+  --surface:      #f6f6f7;
+  --surface2:     #ededee;
+  --border:       #e2e2e3;
+  --border2:      #c2c2c4;
+  --text:         #3c3c43;
+  --text-muted:   #67676c;
+  --accent:       #3451b2;
+  --accent-hover: #3a5ccc;
+  --accent-subtle:#eef0fb;
+  --danger:       #dc2626;
+  --danger-subtle:rgba(220, 38, 38, 0.08);
+  --success:      #16a34a;
+  --shadow:       rgba(0, 0, 0, 0.08);
+  --font-mono:    'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color-scheme: light;
 }
+
+/* Dark mode — system preference, no manual override */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg:           #1b1b1f;
+    --surface:      #161618;
+    --surface2:     #202127;
+    --border:       #2e2e32;
+    --border2:      #3c3f44;
+    --text:         #dfdfd6;
+    --text-muted:   #98989f;
+    --accent-subtle:rgba(52, 81, 178, 0.18);
+    --danger:       #f87171;
+    --danger-subtle:rgba(248, 113, 113, 0.1);
+    --success:      #4ade80;
+    --shadow:       rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+
+/* Dark mode — explicit user override */
+[data-theme="dark"] {
+  --bg:           #1b1b1f;
+  --surface:      #161618;
+  --surface2:     #202127;
+  --border:       #2e2e32;
+  --border2:      #3c3f44;
+  --text:         #dfdfd6;
+  --text-muted:   #98989f;
+  --accent-subtle:rgba(52, 81, 178, 0.18);
+  --danger:       #f87171;
+  --danger-subtle:rgba(248, 113, 113, 0.1);
+  --success:      #4ade80;
+  --shadow:       rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+/* Light mode — explicit user override */
+[data-theme="light"] {
+  --bg:           #ffffff;
+  --surface:      #f6f6f7;
+  --surface2:     #ededee;
+  --border:       #e2e2e3;
+  --border2:      #c2c2c4;
+  --text:         #3c3c43;
+  --text-muted:   #67676c;
+  --accent:       #3451b2;
+  --accent-hover: #3a5ccc;
+  --accent-subtle:#eef0fb;
+  --danger:       #dc2626;
+  --danger-subtle:rgba(220, 38, 38, 0.08);
+  --success:      #16a34a;
+  --shadow:       rgba(0, 0, 0, 0.08);
+  color-scheme: light;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────── */
 
 body {
   width: 440px;
@@ -24,10 +89,11 @@ body {
   font-size: 13px;
   color: var(--text);
   background: var(--bg);
-  user-select: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* ── App Header ── */
+/* ── App Header ───────────────────────────────────────────────────── */
+
 .app-header {
   display: flex;
   align-items: center;
@@ -35,6 +101,7 @@ body {
   padding: 10px 14px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .logo {
@@ -47,19 +114,49 @@ body {
   letter-spacing: -0.2px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .version {
   font-size: 11px;
   color: var(--text-muted);
 }
 
-/* ── Profile Bar ── */
+/* Theme toggle */
+.theme-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.theme-btn:hover {
+  background: var(--surface2);
+  border-color: var(--border2);
+  color: var(--text);
+}
+
+/* ── Profile Bar ──────────────────────────────────────────────────── */
+
 .profile-bar {
   display: flex;
   align-items: center;
   gap: 5px;
   padding: 7px 12px;
-  background: var(--surface2);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .profile-select {
@@ -73,11 +170,9 @@ body {
   font-size: 12px;
   outline: none;
   cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.15s;
 }
-
-.profile-select:focus {
-  border-color: var(--accent);
-}
+.profile-select:focus { border-color: var(--accent); }
 
 .icon-btn {
   width: 26px;
@@ -92,14 +187,12 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
 }
-
 .icon-btn:hover {
   background: var(--surface2);
-  border-color: var(--text-muted);
+  border-color: var(--border2);
 }
-
 .icon-btn.danger { color: var(--danger); }
 .icon-btn.danger:hover { border-color: var(--danger); }
 
@@ -113,17 +206,15 @@ body {
   flex-shrink: 0;
   cursor: pointer;
 }
-
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
 
 .slider {
   position: absolute;
   inset: 0;
-  background: var(--border);
+  background: var(--border2);
   border-radius: 22px;
   transition: background 0.2s;
 }
-
 .slider::before {
   content: '';
   position: absolute;
@@ -134,18 +225,20 @@ body {
   background: #fff;
   border-radius: 50%;
   transition: transform 0.2s;
+  box-shadow: 0 1px 3px var(--shadow);
 }
-
 .toggle-switch input:checked + .slider { background: var(--accent); }
 .toggle-switch input:checked + .slider::before { transform: translateX(16px); }
 
-/* ── URL Filter ── */
+/* ── URL Filter ───────────────────────────────────────────────────── */
+
 .url-filter-section {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 7px 12px;
   border-bottom: 1px solid var(--border);
+  transition: border-color 0.2s ease;
 }
 
 .section-label {
@@ -169,15 +262,14 @@ body {
   font-family: var(--font-mono);
   outline: none;
   min-width: 0;
+  transition: background-color 0.2s ease, border-color 0.15s, color 0.2s;
 }
-
 .url-input:focus { border-color: var(--accent); }
 .url-input::placeholder { color: var(--text-muted); font-family: inherit; }
 
-/* ── Headers Sections ── */
-.headers-section {
-  border-bottom: 1px solid var(--border);
-}
+/* ── Headers Sections ─────────────────────────────────────────────── */
+
+.headers-section { border-bottom: 1px solid var(--border); }
 
 .section-header {
   display: flex;
@@ -185,6 +277,8 @@ body {
   justify-content: space-between;
   padding: 5px 12px;
   background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .add-btn {
@@ -198,14 +292,14 @@ body {
   cursor: pointer;
   transition: background 0.15s;
 }
-
 .add-btn:hover { background: var(--accent-hover); }
 
 .headers-list {
   max-height: 148px;
   overflow-y: auto;
+  background: var(--bg);
+  transition: background-color 0.2s ease;
 }
-
 .headers-list::-webkit-scrollbar { width: 4px; }
 .headers-list::-webkit-scrollbar-track { background: transparent; }
 .headers-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -223,16 +317,12 @@ body {
   gap: 4px;
   padding: 4px 8px;
   border-bottom: 1px solid var(--border);
-  transition: background 0.1s;
+  transition: background-color 0.1s, border-color 0.2s;
 }
-
 .header-row:last-child { border-bottom: none; }
 .header-row:hover { background: var(--surface2); }
-
 .header-row.row-disabled .header-name,
-.header-row.row-disabled .header-value {
-  opacity: 0.4;
-}
+.header-row.row-disabled .header-value { opacity: 0.4; }
 
 .header-checkbox {
   width: 14px;
@@ -253,17 +343,16 @@ body {
   font-family: var(--font-mono);
   outline: none;
   user-select: text;
+  transition: background-color 0.15s, border-color 0.15s, color 0.2s;
 }
-
 .header-name { width: 160px; flex-shrink: 0; }
 .header-value { flex: 1; min-width: 0; }
 
 .header-name:focus,
 .header-value:focus {
   border-color: var(--accent);
-  background: var(--bg);
+  background: var(--accent-subtle);
 }
-
 .header-name::placeholder,
 .header-value::placeholder {
   color: var(--text-muted);
@@ -284,20 +373,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s, background-color 0.15s;
 }
-
 .delete-btn:hover {
   color: var(--danger);
-  background: rgba(224, 108, 117, 0.12);
+  background: var(--danger-subtle);
 }
 
-/* ── Footer ── */
+/* ── Footer ───────────────────────────────────────────────────────── */
+
 .footer {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .text-btn {
@@ -308,32 +400,39 @@ body {
   border-radius: 4px;
   padding: 3px 10px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
 }
-
 .text-btn:hover {
   color: var(--text);
-  border-color: var(--text-muted);
+  border-color: var(--border2);
+  background: var(--surface2);
 }
 
 .status-msg {
   margin-left: auto;
   font-size: 11px;
   color: var(--success);
-  opacity: 0.8;
 }
 
-/* ── Autocomplete dropdown ── */
+/* ── Profile disabled state ───────────────────────────────────────── */
+
+.container.profile-off .headers-section,
+.container.profile-off .url-filter-section {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ── Autocomplete dropdown ────────────────────────────────────────── */
+
 .autocomplete-dropdown {
   position: fixed;
   z-index: 9999;
-  background: var(--surface2);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
   overflow-y: auto;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 20px var(--shadow);
 }
-
 .autocomplete-dropdown.hidden { display: none; }
 
 .autocomplete-dropdown::-webkit-scrollbar { width: 4px; }
@@ -347,28 +446,21 @@ body {
   color: var(--text);
   cursor: pointer;
   white-space: nowrap;
+  transition: background-color 0.1s;
 }
-
 .autocomplete-item:hover,
 .autocomplete-item.ac-active {
   background: var(--accent);
   color: #fff;
 }
-
 .autocomplete-item mark {
   background: transparent;
-  color: #ffd080;
+  color: var(--accent);
   font-weight: 700;
 }
-
-.autocomplete-item.ac-active mark {
+.autocomplete-item.ac-active mark,
+.autocomplete-item:hover mark {
   color: #fff;
+  font-weight: 700;
   text-decoration: underline;
-}
-
-/* ── Profile disabled state ── */
-.container.profile-off .headers-section,
-.container.profile-off .url-filter-section {
-  opacity: 0.45;
-  pointer-events: none;
 }
