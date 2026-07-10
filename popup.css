@@ -255,7 +255,7 @@ body {
   user-select: text;
 }
 
-.header-name { width: 145px; flex-shrink: 0; }
+.header-name { width: 160px; flex-shrink: 0; }
 .header-value { flex: 1; min-width: 0; }
 
 .header-name:focus,

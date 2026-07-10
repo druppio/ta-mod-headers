@@ -90,7 +90,7 @@ function renderHeadersList(containerId, headers, type) {
     row.className = `header-row${header.enabled ? '' : ' row-disabled'}`;
     row.innerHTML = `
       <input type="checkbox" class="header-checkbox" ${header.enabled ? 'checked' : ''} data-type="${type}" data-index="${index}">
-      <input type="text" class="header-name" value="${escapeAttr(header.name)}" placeholder="Name" data-type="${type}" data-index="${index}" spellcheck="false">
+      <input type="text" class="header-name" value="${escapeAttr(header.name)}" placeholder="Name" list="${type === 'request' ? 'requestHeaderSuggestions' : 'responseHeaderSuggestions'}" data-type="${type}" data-index="${index}" spellcheck="false" autocomplete="off">
       <input type="text" class="header-value" value="${escapeAttr(header.value)}" placeholder="Value" data-type="${type}" data-index="${index}" spellcheck="false">
       <button class="delete-btn" data-type="${type}" data-index="${index}" title="Remove">×</button>
     `;
