@@ -19,23 +19,36 @@ A lightweight Chrome extension for modifying HTTP request and response headers �
 
 ## Installation
 
-### From a Release (recommended)
+### Quick install (macOS & Linux)
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/druppio/ta-mod-headers/main/install.sh)"
+```
+
+The script will:
+1. Copy the extension to a permanent location (`~/Library/Application Support/SimpleHeaderEditor` on macOS)
+2. Attempt to enable Developer mode via Chrome policy (macOS)
+3. Open Chrome to `chrome://extensions`
+4. Print the exact folder path to load
+
+**Two clicks still required** (Chrome security restriction — no script can bypass this):
+- Enable **Developer mode** (top-right toggle)
+- Click **Load unpacked** → select the printed path
+
+### From a Release
 
 1. Go to the [Releases](../../releases) page and download the latest `simple-header-editor-vX.X.X.zip`
-2. Unzip it to a **permanent** folder (Chrome loads it from disk — don't delete or move it after loading)
-3. Open Chrome and navigate to `chrome://extensions`
-4. Enable **Developer mode** using the toggle in the top-right corner
-5. Click **Load unpacked** and select the unzipped folder
-6. The extension icon appears in your toolbar — pin it for easy access
+2. Unzip it and run `install.sh` — or follow the manual steps:
+3. Open Chrome → `chrome://extensions`
+4. Enable **Developer mode** (top-right toggle)
+5. Click **Load unpacked** → select the unzipped folder
 
 ### From Source
 
 ```bash
 git clone git@github.com:druppio/ta-mod-headers.git
-cd ta-mod-headers
+cd ta-mod-headers && ./install.sh
 ```
-
-Then follow steps 3–6 above, selecting the cloned folder.
 
 ---
 

@@ -44,7 +44,8 @@ jobs:
             popup.html \
             popup.js \
             popup.css \
-            icons/
+            icons/ \
+            install.sh
           echo "zip=$ZIP" >> $GITHUB_ENV
           echo "Built: $(du -sh $ZIP | cut -f1) — $(unzip -l $ZIP | tail -1)"
 
