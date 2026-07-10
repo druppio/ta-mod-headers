@@ -1,3 +1,26 @@
+const HEADER_SUGGESTIONS = {
+  request: [
+    'Authorization', 'Content-Type', 'Accept', 'Origin', 'Referer',
+    'User-Agent', 'Cookie', 'X-Api-Key', 'X-Auth-Token', 'X-Requested-With',
+    'X-CSRF-Token', 'X-Forwarded-For', 'X-Real-IP', 'X-Correlation-ID',
+    'X-Request-ID', 'X-Client-ID', 'Accept-Language', 'Accept-Encoding',
+    'Cache-Control', 'Pragma', 'If-None-Match', 'If-Modified-Since',
+    'Range', 'Host', 'Connection', 'Content-Length', 'Content-Encoding',
+    'Sec-Fetch-Mode', 'Sec-Fetch-Site', 'Sec-Fetch-Dest', 'DNT'
+  ],
+  response: [
+    'Access-Control-Allow-Origin', 'Access-Control-Allow-Methods',
+    'Access-Control-Allow-Headers', 'Access-Control-Allow-Credentials',
+    'Access-Control-Expose-Headers', 'Access-Control-Max-Age',
+    'Content-Type', 'Content-Security-Policy', 'Content-Security-Policy-Report-Only',
+    'Referrer-Policy', 'X-Frame-Options', 'X-Content-Type-Options',
+    'Strict-Transport-Security', 'Permissions-Policy', 'Cache-Control',
+    'X-XSS-Protection', 'Set-Cookie', 'Location', 'WWW-Authenticate',
+    'ETag', 'Last-Modified', 'Vary', 'Content-Encoding', 'Content-Length',
+    'Server', 'X-Powered-By'
+  ]
+};
+
 let profiles = [];
 let currentProfileIndex = 0;
 let saveTimer = null;
@@ -90,7 +113,7 @@ function renderHeadersList(containerId, headers, type) {
     row.className = `header-row${header.enabled ? '' : ' row-disabled'}`;
     row.innerHTML = `
       <input type="checkbox" class="header-checkbox" ${header.enabled ? 'checked' : ''} data-type="${type}" data-index="${index}">
-      <input type="text" class="header-name" value="${escapeAttr(header.name)}" placeholder="Name" list="${type === 'request' ? 'requestHeaderSuggestions' : 'responseHeaderSuggestions'}" data-type="${type}" data-index="${index}" spellcheck="false" autocomplete="off">
+      <input type="text" class="header-name" value="${escapeAttr(header.name)}" placeholder="Name" data-type="${type}" data-index="${index}" spellcheck="false" autocomplete="off">
       <input type="text" class="header-value" value="${escapeAttr(header.value)}" placeholder="Value" data-type="${type}" data-index="${index}" spellcheck="false">
       <button class="delete-btn" data-type="${type}" data-index="${index}" title="Remove">×</button>
     `;
@@ -253,6 +276,111 @@ document.getElementById('importFile').addEventListener('change', async e => {
     alert('Import failed: ' + err.message);
   }
   e.target.value = '';
+});
+
+// ── Autocomplete ──────────────────────────────────────────────────────────────
+
+const acDropdown = document.getElementById('headerAutocomplete');
+let acActiveIndex = -1;
+let acItems = [];
+
+function showAutocomplete(input) {
+  const type = input.dataset.type;
+  if (!type) return;
+  const query = input.value.toLowerCase();
+  const list = HEADER_SUGGESTIONS[type] || [];
+  const filtered = query ? list.filter(h => h.toLowerCase().includes(query)) : list;
+
+  if (!filtered.length) { hideAutocomplete(); return; }
+
+  acItems = filtered;
+  acActiveIndex = -1;
+  acDropdown.innerHTML = '';
+
+  filtered.forEach((name, i) => {
+    const item = document.createElement('div');
+    item.className = 'autocomplete-item';
+    // Highlight matching segment
+    if (query) {
+      const idx = name.toLowerCase().indexOf(query);
+      item.innerHTML = escapeAttr(name.slice(0, idx))
+        + `<mark>${escapeAttr(name.slice(idx, idx + query.length))}</mark>`
+        + escapeAttr(name.slice(idx + query.length));
+    } else {
+      item.textContent = name;
+    }
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
+      selectAutocomplete(input, name);
+    });
+    acDropdown.appendChild(item);
+  });
+
+  const rect = input.getBoundingClientRect();
+  acDropdown.style.top = (rect.bottom + 2) + 'px';
+  acDropdown.style.left = rect.left + 'px';
+  acDropdown.style.width = Math.max(rect.width, 220) + 'px';
+  acDropdown.classList.remove('hidden');
+}
+
+function hideAutocomplete() {
+  acDropdown.classList.add('hidden');
+  acActiveIndex = -1;
+  acItems = [];
+}
+
+function setActiveItem(index) {
+  const items = acDropdown.querySelectorAll('.autocomplete-item');
+  items.forEach(el => el.classList.remove('ac-active'));
+  if (index >= 0 && index < items.length) {
+    acActiveIndex = index;
+    items[index].classList.add('ac-active');
+    items[index].scrollIntoView({ block: 'nearest' });
+  } else {
+    acActiveIndex = -1;
+  }
+}
+
+function selectAutocomplete(input, name) {
+  input.value = name;
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  hideAutocomplete();
+  input.closest('.header-row')?.querySelector('.header-value')?.focus();
+}
+
+document.addEventListener('focusin', e => {
+  if (e.target.classList.contains('header-name')) showAutocomplete(e.target);
+  else hideAutocomplete();
+});
+
+document.addEventListener('focusout', e => {
+  if (e.target.classList.contains('header-name')) {
+    setTimeout(hideAutocomplete, 150);
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (acDropdown.classList.contains('hidden')) return;
+  const count = acItems.length;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    setActiveItem((acActiveIndex + 1) % count);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    setActiveItem((acActiveIndex - 1 + count) % count);
+  } else if (e.key === 'Enter' && acActiveIndex >= 0) {
+    e.preventDefault();
+    const input = document.activeElement;
+    if (input.classList.contains('header-name')) selectAutocomplete(input, acItems[acActiveIndex]);
+  } else if (e.key === 'Escape') {
+    hideAutocomplete();
+  }
+}, true);
+
+// Re-filter on typing (input event for header-name is already handled above for save;
+// we just need to also refresh the dropdown)
+document.addEventListener('input', e => {
+  if (e.target.classList.contains('header-name')) showAutocomplete(e.target);
 });
 
 document.addEventListener('DOMContentLoaded', init);
