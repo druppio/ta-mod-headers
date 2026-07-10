@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Header Editor",
+  "name": "Simple Header Editor",
   "version": "1.0.0",
   "description": "Modify HTTP request and response headers for development and testing",
   "permissions": [
@@ -13,7 +13,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Header Editor",
+    "default_title": "Simple Header Editor",
     "default_icon": {
       "16":  "icons/icon16.png",
       "48":  "icons/icon48.png",
