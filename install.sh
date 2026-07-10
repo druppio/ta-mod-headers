@@ -111,13 +111,12 @@ else
   INSTALL_DIR="$HOME/simple-header-editor"
 fi
 
-mkdir -p "$INSTALL_DIR" "$INSTALL_DIR/icons"
+mkdir -p "$INSTALL_DIR"
 
 # ── Download or copy extension files ─────────────────────────────────────────
 step "2/4  Installing extension files"
 
 EXTENSION_FILES=(manifest.json background.js popup.html popup.js popup.css)
-ICON_FILES=(icon16.png icon48.png icon128.png icon16_inactive.png icon48_inactive.png icon128_inactive.png)
 
 if [[ "$LOCAL_INSTALL" == true ]]; then
   # ── Local copy ──────────────────────────────────────────────────
@@ -126,14 +125,6 @@ if [[ "$LOCAL_INSTALL" == true ]]; then
       cp "$SCRIPT_DIR/$f" "$INSTALL_DIR/$f"
     else
       warn "Missing local file: $f"
-    fi
-  done
-
-  HAS_ICONS=false
-  for f in "${ICON_FILES[@]}"; do
-    if [[ -f "$SCRIPT_DIR/icons/$f" ]]; then
-      cp "$SCRIPT_DIR/icons/$f" "$INSTALL_DIR/icons/$f"
-      HAS_ICONS=true
     fi
   done
 else
@@ -146,21 +137,9 @@ else
       error "Failed to download $f — check your connection and try again."
     fi
   done
-
-  HAS_ICONS=false
-  for f in "${ICON_FILES[@]}"; do
-    if curl -fsSL "${RAW_BASE}/icons/${f}" -o "$INSTALL_DIR/icons/$f" 2>/dev/null; then
-      HAS_ICONS=true
-    fi
-  done
 fi
 
 success "Extension files ready at: ${BOLD}${INSTALL_DIR}${RESET}"
-
-if [[ "$HAS_ICONS" == false ]]; then
-  warn "Icons not found — Chrome will use a default icon."
-  warn "Open generate-icons.html in Chrome, download the PNGs, and re-run this script."
-fi
 
 # ── Enable Developer mode via Chrome policy (macOS) ───────────────────────────
 step "3/4  Configuring Chrome"
