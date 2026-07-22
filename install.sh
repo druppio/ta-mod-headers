@@ -38,13 +38,16 @@ fi
 # ── Detect OS ─────────────────────────────────────────────────────────────────
 OS="$(uname -s)"
 case "$OS" in
-  Darwin) PLATFORM="macOS" ;;
-  Linux)  PLATFORM="Linux" ;;
-  *)      error "Unsupported OS: $OS. This script supports macOS and Linux." ;;
+  Darwin)             PLATFORM="macOS" ;;
+  Linux)              PLATFORM="Linux" ;;
+  MINGW*|MSYS*|CYGWIN*) PLATFORM="Windows" ;;
+  *)                  error "Unsupported OS: $OS. This script supports macOS, Linux, and Windows (Git Bash)." ;;
 esac
 
 # ── Install directory ─────────────────────────────────────────────────────────
 if [[ "$PLATFORM" == "macOS" ]]; then
+  INSTALL_DIR="$HOME/Documents/SimpleHeaderEditor"
+elif [[ "$PLATFORM" == "Windows" ]]; then
   INSTALL_DIR="$HOME/Documents/SimpleHeaderEditor"
 else
   INSTALL_DIR="$HOME/simple-header-editor"
@@ -131,6 +134,16 @@ if [[ "$PLATFORM" == "macOS" ]]; then
   do
     if [[ -x "$candidate" ]]; then CHROME_BIN="$candidate"; break; fi
   done
+elif [[ "$PLATFORM" == "Windows" ]]; then
+  WIN_PROG_X86="$(printenv 'PROGRAMFILES(X86)' 2>/dev/null || true)"
+  for candidate in \
+    "${LOCALAPPDATA:-}/Google/Chrome/Application/chrome.exe" \
+    "${PROGRAMFILES:-}/Google/Chrome/Application/chrome.exe" \
+    "${WIN_PROG_X86:-}/Google/Chrome/Application/chrome.exe" \
+    "${LOCALAPPDATA:-}/Chromium/Application/chrome.exe"
+  do
+    if [[ -n "$candidate" && -f "$candidate" ]]; then CHROME_BIN="$candidate"; break; fi
+  done
 else
   for candidate in google-chrome google-chrome-stable chromium-browser chromium; do
     if command -v "$candidate" &>/dev/null; then CHROME_BIN="$candidate"; break; fi
@@ -184,6 +197,8 @@ if ! $IS_UPDATE; then
     fi
 
     defaults write com.google.Chrome ExtensionDeveloperModeAllowed -bool true 2>/dev/null || true
+  elif [[ "$PLATFORM" == "Windows" ]]; then
+    info "Windows: enable Developer mode manually (top-right toggle on chrome://extensions)"
   else
     info "Linux: enable Developer mode manually (top-right toggle on chrome://extensions)"
   fi
@@ -194,6 +209,9 @@ step "$(if $IS_UPDATE; then echo "3/3"; else echo "4/4"; fi)  Opening Chrome"
 
 if [[ "$PLATFORM" == "macOS" ]]; then
   open -a "Google Chrome" "chrome://extensions" 2>/dev/null || open "chrome://extensions" 2>/dev/null || true
+elif [[ "$PLATFORM" == "Windows" ]]; then
+  start "chrome://extensions" 2>/dev/null \
+    || nohup "$CHROME_BIN" "chrome://extensions" &>/dev/null & true
 else
   nohup "$CHROME_BIN" "chrome://extensions" &>/dev/null &
 fi
